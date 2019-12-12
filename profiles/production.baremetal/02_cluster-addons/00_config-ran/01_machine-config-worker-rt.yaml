@@ -1,0 +1,34 @@
+---
+apiVersion: machineconfiguration.openshift.io/v1
+kind: MachineConfig
+metadata:
+  labels:
+    machineconfiguration.openshift.io/role: worker-rt
+  name: machine-config-worker-rt
+spec:
+  config:
+    ignition:
+      version: 2.2.0
+    storage:
+      files:
+        -
+          contents:
+            source: data:text/plain;base64,IyEvYmluL2Jhc2gKaWYgWyAtZiAvZXRjL2NlbnRvcy1yZWxlYXNlIF07IHRoZW4KICAgIGVjaG8gInNraXBwaW5nIHJlYWx0aW1lIGluc3RhbGwiCmVsc2UKICAgICMgYWRkIHJpZ2h0IHJlYWx0aW1lIHBhY2thZ2UgZGVwZW5kaW5nIG9uIHZlcnNpb24KICAgIGlmIFtbICIkKGNhdCAvZXRjL3JlZGhhdC1yZWxlYXNlKSIgPX4gIk1haXBvIiBdXTsgdGhlbgogICAgICAgIHN1YnNjcmlwdGlvbi1tYW5hZ2VyIHJlcG9zIC0tZW5hYmxlIHJoZWwtNy1zZXJ2ZXItcnQtcnBtcwogICAgZWxzZQogICAgICAgIHN1YnNjcmlwdGlvbi1tYW5hZ2VyIHJlcG9zIC0tZW5hYmxlIHJoZWwtOC1mb3IteDg2XzY0LXJ0LXJwbXMKICAgIGZpCiAgICB5dW0gZ3JvdXBpbnN0YWxsIC15IFJUCmZpCgpjbWRsaW5lX3JlYWx0aW1lPSIraXNvbGNwdXM9XCR7aXNvbGF0ZWRfY29yZXN9IGludGVsX3BzdGF0ZT1kaXNhYmxlIG5vc29mdGxvY2t1cCBubWlfd2F0Y2hkb2c9MCBhdWRpdD0wIG1jZT1vZmYga3RocmVhZF9jcHVzPTAgaXJxYWZmaW5pdHk9MCBza2V3X3RpY2s9MSBwcm9jZXNzb3IubWF4X2NzdGF0ZT0xIGludGVsX2lkbGUubWF4X2NzdGF0ZT0wIGludGVsX2lvbW11PW9uIGlvbW11PXB0IGRlZmF1bHRfaHVnZXBhZ2Vzej1cJHtodWdlcGFnZV9zaXplX2RlZmF1bHR9IGh1Z2VwYWdlc3o9XCR7aHVnZXBhZ2Vfc2l6ZX0gaHVnZXBhZ2VzPVwke2h1Z2VwYWdlX251bX0gbm9oej1vbiBub2h6X2Z1bGw9XCR7aXNvbGF0ZWRfY29yZXN9IHJjdV9ub2Nicz1cJHtpc29sYXRlZF9jb3Jlc30iCgpzZWQgLWkgJ3N8XmNtZGxpbmVfcmVhbHRpbWUuKnxjbWRsaW5lX3JlYWx0aW1lPSciJHtjbWRsaW5lX3JlYWx0aW1lfSInfCcgL3Vzci9saWIvdHVuZWQvcmVhbHRpbWUvdHVuZWQuY29uZiAgCgpzeXN0ZW1jdGwgc3RhcnQgdHVuZWQKc3lzdGVtY3RsIGVuYWJsZSB0dW5lZAp0dW5lZC1hZG0gcHJvZmlsZSByZWFsdGltZQoKdG91Y2ggL29wdC9ydF9leGVjdXRlZApyZWJvb3Q=
+          filesystem: root
+          mode: 0777
+          path: /opt/setup_rt.sh
+    systemd:
+      units:
+        -
+          contents: |
+            [Unit]
+            Description=One time service to install rt and tuned profile
+            After=network-online.target
+            ConditionPathExists=!/opt/rt_executed
+            [Service]
+            Type=oneshot
+            ExecStart=/opt/setup_rt.sh
+            [Install]
+            WantedBy=multi-user.target
+          enabled: true
+          name: install_realtime.service
